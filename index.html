@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melbourne 20-Minute Neighbourhood Tracker</title>
+    <link href="styles.css" rel="stylesheet">
+
+    <!-- Mapbox GL JS Dependencies -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.css" rel="stylesheet">
+
+   <script src="https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.js"></script>
+
+    <!-- Clean Modern Typography Architecture -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Add turf.js to highlight POI within isochrones -->
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
+
+</head>
+
+<body>
+
+    <div id="map"></div>
+
+    <div class="map-overlay">
+        <header>
+            <h1>ACTIVE ACCESSIBILITY TRACKER</h1>
+            <span class="location-tag">20-MINUTE NEIGHBORHOOD CHECKER</span>
+        </header>
+
+        <section class="description-section">
+            <p>See how easy it is to live in a neighborhood without a car. Click anywhere on the map to see what stores, schools, and services you can reach within a 5, 10, or 20-minute walk or bike ride.</p>
+            <p class="instruction">📍 Click anywhere on the map to check nearby amenities.</p>
+        </section>
+
+        <!-- Dynamic Liveability Score Block -->
+        <section id="score-block" class="hidden">
+            <label class="score-title">Accessibility Score</label>
+            <div class="score-flex-row">
+                <span id="score-number">--</span>
+                <span class="score-max-value">/100</span>
+                <span id="dash-total">0 Amenities Found</span>
+            </div>
+            <p id="score-summary"></p>
+        </section>
+
+        <!-- Dynamic Transit Drop-down menu -->
+        <section class="filter-section">
+            <label for="mode">Select Transport Profile</label>
+            <select id="mode" class="control-select">
+                <option value="walking">🚶 Walking (Pedestrian Network)</option>
+                <option value="cycling">🚲 Cycling (Active Infrastructure)</option>
+            </select>
+        </section>
+
+        <!-- Explicit Analytical Legend with Live Metric Counters -->
+        <section class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #10B981;"></div>
+                <div class="legend-text-stack">
+                    <span class="legend-title">5 Minutes (High Accessibility)</span>
+                    <span id="count-5min" class="legend-counter">0 POIs inside buffer</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #F59E0B;"></div>
+                <div class="legend-text-stack">
+                    <span class="legend-title">10 Minutes (Moderate Accessibility)</span>
+                    <span id="count-10min" class="legend-counter">0 POIs inside buffer</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #EF4444;"></div>
+                <div class="legend-text-stack">
+                    <span class="legend-title">20 Minutes (Target Boundary)</span>
+                    <span id="count-20min" class="legend-counter">0 POIs inside buffer</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Category Distribution Progress Panel -->
+        <section id="category-panel" class="hidden">
+            <label class="panel-section-title">Infrastructure Breakdown</label>
+            <div id="categories-list">
+                <!-- Programmatic category bar elements will append straight here -->
+            </div>
+        </section>
+
+        <footer>
+            <p class="datasource">Powered by Mapbox Isochrone Engine & OpenStreetMap infrastructure network tracks.</p>
+        </footer>
+    </div>
+    
+    <script src="index.js"></script>
+</body>
+
+</html>
