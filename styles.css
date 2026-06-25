@@ -1,0 +1,275 @@
+/* ==========================================================================
+   Base and Layout Elements 
+   ========================================================================== */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden; /* Prevents double scrolling bars on mobile */
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Desktop Sidebar Panel Layout (Default) */
+.map-overlay {
+    position: absolute;
+    left: 24px;
+    top: 24px;
+    background: #FFFFFF;
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
+    color: #2D3142;
+    width: 340px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+   Typography & Headers
+   ========================================================================== */
+.map-overlay h1 {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 4px 0;
+    color: #111827;
+}
+
+.location-tag {
+    font-size: 11px;
+    font-weight: 600;
+    color: #3887be;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+}
+
+/* ==========================================================================
+   Descriptions & Instructions
+   ========================================================================== */
+.description-section {
+    margin: 16px 0;
+    border-bottom: 1px solid #E5E7EB;
+    padding-bottom: 16px;
+}
+
+.description-section p {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #4B5563;
+    margin: 0 0 12px 0;
+}
+
+.description-section p.instruction {
+    font-weight: 500;
+    color: #1F2937;
+    background: #F3F4F6;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 0;
+}
+
+/* ==========================================================================
+   Dynamic Score Block
+   ========================================================================== */
+#score-block {
+    background: #F9FAFB;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.score-title, .panel-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9CA3AF;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.score-flex-row {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+}
+
+#score-number {
+    font-size: 32px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1;
+}
+
+.score-max-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #9CA3AF;
+}
+
+#dash-total {
+    margin-left: auto;
+    background: #E5E7EB;
+    color: #4B5563;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+#score-summary {
+    font-size: 12px;
+    color: #4B5563;
+    margin: 8px 0 0 0;
+    line-height: 1.4;
+}
+
+/* ==========================================================================
+   Form Selection Inputs
+   ========================================================================== */
+.filter-section {
+    margin-bottom: 16px;
+}
+
+.filter-section label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #9CA3AF;
+    margin-bottom: 8px;
+}
+
+.control-select {
+    width: 100%;
+    padding: 10px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1F2937;
+    background-color: #FFFFFF;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.control-select:focus {
+    border-color: #3887be;
+}
+
+/* ==========================================================================
+   Map Legend Architecture
+   ========================================================================== */
+.legend {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: flex-start;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.legend-text-stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.legend-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1F2937;
+    line-height: 1.3;
+}
+
+.legend-counter {
+    font-size: 12px;
+    color: #6B7280;
+    margin-top: 2px;
+}
+
+/* ==========================================================================
+   Category Distribution Section
+   ========================================================================== */
+#category-panel {
+    border-top: 1px solid #E5E7EB;
+    padding-top: 16px;
+    margin-top: 16px;
+}
+
+/* ==========================================================================
+   Attribution Footers & Utilities
+   ========================================================================== */
+footer {
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 1px solid #E5E7EB;
+}
+
+.datasource {
+    font-size: 11px;
+    color: #9CA3AF;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.hidden { 
+    display: none !important; 
+}
+
+/* ==========================================================================
+   📱 MOBILE RESPONSIVE MEDIA BREAKPOINT (NEW)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .map-overlay {
+        left: 0;
+        top: auto;
+        bottom: 0; /* Snaps the panel to the bottom edge */
+        width: 100%;
+        max-height: 45vh; /* Takes up less than half the screen vertically */
+        border-radius: 16px 16px 0 0; /* Rounds only the top corners */
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        padding: 20px;
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Shrink the size of headings on mobile slightly so they sit on single lines */
+    .map-overlay h1 {
+        font-size: 18px;
+    }
+    
+    /* Make the instruction box tighter on phone displays */
+    .description-section p.instruction {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}
