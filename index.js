@@ -165,6 +165,9 @@ map.on('load', () => {
 
 });// map loads end
 
+// Add zoom and rotation controls to the top right corner
+map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
 // Click Event Listener capturing the click coordinate data
 map.on('click', (e) => {
     // 1. Force the script to read the library directly out of window memory
