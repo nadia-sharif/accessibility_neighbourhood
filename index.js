@@ -9,11 +9,8 @@ const map = new mapboxgl.Map({
     center: [144.9631, -37.8136],
     zoom: 13,
     minZoom: 6,
-    maxZoom: 18
+    maxZoom: 20
 });
-
-// Add zoom and rotation controls to the top right corner
-map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
 map.on('load', () => {
     // 1. Set up an empty placeholder GeoJSON data source for the Isochrone shapes
@@ -120,7 +117,6 @@ map.on('load', () => {
                 'bakery', 'bakery',
                 'alcohol', 'alcohol-shop',
                 'mall', 'shop',
-
                 // Travel & Transport
                 'bus_station', 'bus',
                 'fuel', 'fuel',
@@ -168,12 +164,9 @@ map.on('load', () => {
 // Add zoom and rotation controls to the top right corner
 map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
-// Click Event Listener capturing the click coordinate data
 map.on('click', (e) => {
-    // 1. Force the script to read the library directly out of window memory
     const turfEngine = window.turf;
 
-    // 2. Safety Check: If Turf hasn't loaded yet, alert the user and stop execution
     if (!turfEngine) {
         console.error("Turf.js library is still downloading. Please click again in a brief second.");
         return;
@@ -181,9 +174,11 @@ map.on('click', (e) => {
 
     const lng = e.lngLat.lng;
     const lat = e.lngLat.lat;
-    const profile = document.getElementById('mode').value;
 
-    // Wrap the coordinates into a standard GeoJSON FeatureCollection structure
+    // Quick Fix: Changed 'mode' to match your panel dropdown ID ('profile-select')
+    const profileSelectEl = document.getElementById('profile-select') || document.getElementById('mode');
+    const profile = profileSelectEl.value;
+
     map.getSource('origin-source').setData({
         'type': 'FeatureCollection',
         'features': [
@@ -191,7 +186,7 @@ map.on('click', (e) => {
                 'type': 'Feature',
                 'geometry': {
                     'type': 'Point',
-                    'coordinates': [lng, lat] // Longitude always goes first in GeoJSON
+                    'coordinates': [lng, lat]
                 },
                 'properties': {}
             }
@@ -204,31 +199,25 @@ map.on('click', (e) => {
         .then(response => response.json())
         .then(isoData => {
             map.getSource('iso-source').setData(isoData);
-            const outer20MinPolygon = isoData.features;
 
-            // 3. Fix the array index order to match Overpass bounding box syntax: (south, west, north, east)
-            const bbox = turfEngine.bbox(isoData); // Scans the geometry data block 
+            const bbox = turfEngine.bbox(isoData);
             const overpassBbox = bbox[1] + ',' + bbox[0] + ',' + bbox[3] + ',' + bbox[2];
 
-            // 1. Define your raw Overpass QL query string without complex encoding wrappers
+            // Using the optimized point query layout
             const overpassQuery = `
-    [out:json][timeout:25];
-    (
-      node["amenity"~"cafe|restaurant|school|college|pharmacy|shop"](${overpassBbox});
-      node["shop"](${overpassBbox});
-    );
-    out body;
-`;
+                [out:json][timeout:25];
+                (
+                  nwr["amenity"~"cafe|restaurant|school|college|pharmacy"](${overpassBbox});
+                  nwr["shop"](${overpassBbox});
+                );
+                out center;
+            `;
 
-            // 2. Execute a standard HTTP POST request as outlined in the Developer Quick Start Guide
-            return fetch("https://overpass-api.de/api/interpreter",
-                {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: "data=" + encodeURIComponent(overpassQuery) // Safely binds your query to the body payload
-                })
+            return fetch("https://overpass-api.de/api/interpreter", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: "data=" + encodeURIComponent(overpassQuery)
+            })
                 .then(res => {
                     if (!res.ok) throw new Error('Overpass endpoint returned an error: ' + res.status);
                     return res.json();
@@ -238,10 +227,14 @@ map.on('click', (e) => {
 
                     if (osmData.elements) {
                         osmData.elements.forEach(element => {
-                            if (element.lat && element.lon) {
+                            // Support both simple nodes and polygon center geometries
+                            const latVal = element.center ? element.center.lat : element.lat;
+                            const lonVal = element.center ? element.center.lon : element.lon;
+
+                            if (latVal && lonVal) {
                                 features.push({
                                     type: 'Feature',
-                                    geometry: { type: 'Point', coordinates: [element.lon, element.lat] },
+                                    geometry: { type: 'Point', coordinates: [lonVal, latVal] },
                                     properties: element.tags
                                 });
                             }
@@ -253,12 +246,99 @@ map.on('click', (e) => {
                         features: features
                     };
 
-                    // Filter out only the points sitting exactly inside your shape boundaries
+                    // Filter out global intersections inside the total footprint for the map canvas
                     const strictIntersections = turfEngine.pointsWithinPolygon(rawOsmPointsCollection, isoData);
-                    // Inject the final nodes straight into your Mapbox canvas layer
                     map.getSource('osm-pois').setData(strictIntersections);
-                });
 
+                    // --- NEW DASHBOARD PROCESSING INFRASTRUCTURE ---
+
+                    // Extract individual contour rows (API outputs: [20min, 10min, 5min])
+                    // Reversing them creates a smallest-to-largest index lookup array
+                    const contours = [...isoData.features].reverse();
+                    const iso5Polygon = contours[0];
+                    const iso10Polygon = contours[1];
+                    const iso20Polygon = contours[2];
+
+                    let count5 = 0;
+                    let count10 = 0;
+                    let count20 = 0;
+                    const categoryTotals = {};
+
+                    strictIntersections.features.forEach(poi => {
+                        const tags = poi.properties;
+                        const rawType = tags.shop || tags.amenity || 'other';
+
+                        // Assign high-level category buckets for progress tracking rows
+                        let group = 'Other Services';
+                        if (['cafe', 'restaurant', 'fast_food', 'pub'].includes(rawType)) group = 'Food & Drink';
+                        else if (['supermarket', 'convenience', 'grocery', 'bakery'].includes(rawType)) group = 'Groceries';
+                        else if (['school', 'college', 'university', 'kindergarten'].includes(rawType)) group = 'Education';
+                        else if (['pharmacy', 'doctors', 'hospital'].includes(rawType)) group = 'Health & Wellness';
+                        else if (['clothes', 'department_store', 'mall', 'shop', 'yes'].includes(rawType)) group = 'Retail Shopping';
+
+                        categoryTotals[group] = (categoryTotals[group] || 0) + 1;
+
+                        // Exclusively sort items into their tightest matching polygon layer
+                        if (iso5Polygon && turfEngine.booleanPointInPolygon(poi, iso5Polygon)) {
+                            count5++;
+                        } else if (iso10Polygon && turfEngine.booleanPointInPolygon(poi, iso10Polygon)) {
+                            count10++;
+                        } else if (iso20Polygon && turfEngine.booleanPointInPolygon(poi, iso20Polygon)) {
+                            count20++;
+                        }
+                    });
+
+                    // --- DOM INJECTION RENDERING ---
+
+                    // Reveal the dashboard blocks
+                    document.getElementById('score-block')?.classList.remove('hidden');
+                    document.getElementById('category-panel')?.classList.remove('hidden');
+
+                    // Update text metrics
+                    if (document.getElementById('count-5min')) document.getElementById('count-5min').innerText = `${count5} amenities inside buffer`;
+                    if (document.getElementById('count-10min')) document.getElementById('count-10min').innerText = `${count10} amenities inside buffer`;
+                    if (document.getElementById('count-20min')) document.getElementById('count-20min').innerText = `${count20} amenities inside buffer`;
+                    if (document.getElementById('dash-total')) document.getElementById('dash-total').innerText = `${strictIntersections.features.length} AMENITIES Found`;
+
+                    // Update dynamic meta description strings
+                    const displayProfile = profile === 'walking' ? '🚶 Walking' : '🚴 Cycling';
+                    if (document.getElementById('dash-profile')) document.getElementById('dash-profile').innerText = displayProfile;
+
+                    // Simple algorithm computing liveability rating scale out of 100
+                    const totalPOIs = strictIntersections.features.length;
+                    const computedScore = Math.min(100, Math.round((count5 * 5) + (count10 * 2.5) + (count20 * 1)));
+                    if (document.getElementById('score-number')) document.getElementById('score-number').innerText = computedScore;
+
+                    if (document.getElementById('score-summary')) {
+                        document.getElementById('score-summary').innerText = `Your location offers access to ${totalPOIs} local amenities within 20 mins using the ${profile} mode.`;
+                    }
+
+                    // Render horizontal progress row items dynamically
+                    const listContainer = document.getElementById('categories-list');
+                    if (listContainer) {
+                        listContainer.innerHTML = ''; // Wipe old state data
+
+                        Object.entries(categoryTotals)
+                            .sort((a, b) => b[1] - a[1]) // Keep most dominant category up top
+                            .forEach(([categoryName, quantity]) => {
+                                const maxValForWidth = Math.max(...Object.values(categoryTotals));
+                                const percentageWidth = (quantity / maxValForWidth) * 100;
+
+                                const rowHtml = `
+                                <div class="category-row" style="margin-bottom: 12px;">
+                                    <div style="display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px; font-weight:500; color:#333;">
+                                        <span>${categoryName}</span>
+                                        <span>${quantity}</span>
+                                    </div>
+                                    <div class="progress-bar-bg" style="background:#e2e8f0; height:8px; border-radius:4px; width:100%; overflow:hidden;">
+                                        <div class="progress-bar-fill" style="background:#3182ce; height:100%; width:${percentageWidth}%;"></div>
+                                    </div>
+                                </div>
+                            `;
+                                listContainer.insertAdjacentHTML('beforeend', rowHtml);
+                            });
+                    }
+                });
         })
         .catch(error => {
             console.error('Error executing combined Spatial live-tracking data loop:', error);
