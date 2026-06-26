@@ -30,75 +30,167 @@
     <div id="map"></div>
 
     <div class="map-overlay">
+
         <header>
-            <h1>ACTIVE ACCESSIBILITY TRACKER</h1>
-            <span class="location-tag">20-MINUTE NEIGHBORHOOD CHECKER</span>
+            <h1>20-Minute Neighbourhood Explorer</h1>
+            <span class="location-tag">
+                Network-Based Accessibility Analysis
+            </span>
         </header>
 
         <section class="description-section">
-            <p>See how easy it is to live in a neighborhood without a car. Click anywhere on the map to see what stores, schools, and services you can reach within a 5, 10, or 20-minute walk or bike ride.</p>
-            <p class="instruction">📍 Click anywhere on the map to check nearby amenities.</p>
+            <p>
+                Evaluate neighbourhood accessibility by generating
+                5, 10 and 20-minute walking or cycling catchments
+                from any location. Explore nearby amenities and compare accessibility
+                using a weighted scoring model.
+            </p>
+
+            <p class="instruction">
+                📍 Click anywhere on the map to generate accessibility zones.
+            </p>
         </section>
 
-        <!-- Dynamic Liveability Score Block -->
+        <!-- Accessibility Index -->
         <section id="score-block" class="hidden">
-            <label class="score-title">Accessibility Score</label>
+
+            <label class="score-title">Accessibility Index</label>
+
             <div class="score-flex-row">
                 <span id="score-number">--</span>
                 <span class="score-max-value">/100</span>
-                <span id="dash-total">0 Amenities Found</span>
+                <span id="dash-total">0 Amenities</span>
             </div>
+
             <p id="score-summary"></p>
+
+            <details>
+                <summary>ⓘ About this score</summary>
+
+                <p>
+                    The Accessibility Index is an indicative measure based on the
+                    number of mapped amenities reachable within
+                    5, 10 and 20-minute walking or cycling catchments.
+                    Amenities reached within shorter travel times contribute
+                    more heavily to the final score.
+                </p>
+
+                <p>
+                    Accessibility is calculated using a prototype weighted model
+                    and should be interpreted as an analytical indicator rather
+                    than an official planning metric.
+                </p>
+            </details>
+
         </section>
 
-        <!-- Dynamic Transit Drop-down menu -->
+        <!-- Travel Mode -->
+
         <section class="filter-section">
-            <label for="mode">Select Transport Profile</label>
+
+            <label for="mode">Travel Mode</label>
+
             <select id="mode" class="control-select">
-                <option value="walking">🚶 Walking (Pedestrian Network)</option>
-                <option value="cycling">🚲 Cycling (Active Infrastructure)</option>
+                <option value="walking">
+                    🚶 Walking (Pedestrian Network)
+                </option>
+
+                <option value="cycling">
+                    🚲 Cycling (Cycling Network)
+                </option>
+
             </select>
+
         </section>
 
-        <!-- Explicit Analytical Legend with Live Metric Counters -->
+        <!-- Catchments -->
+
         <section class="legend">
+
             <div class="legend-item">
-                <div class="legend-color" style="background: #10B981;"></div>
+                <div class="legend-color" style="background:#10B981;"></div>
+
                 <div class="legend-text-stack">
-                    <span class="legend-title">5 Minutes (High Accessibility)</span>
-                    <span id="count-5min" class="legend-counter">0 amenities inside buffer</span>
+
+                    <span class="legend-title">
+                        5-Minute Catchment
+                    </span>
+
+                    <span id="count-5min" class="legend-counter">
+                        0 amenities
+                    </span>
+
                 </div>
             </div>
+
             <div class="legend-item">
-                <div class="legend-color" style="background: #F59E0B;"></div>
+
+                <div class="legend-color" style="background:#F59E0B;"></div>
+
                 <div class="legend-text-stack">
-                    <span class="legend-title">10 Minutes (Moderate Accessibility)</span>
-                    <span id="count-10min" class="legend-counter">0 amenities inside buffer</span>
+
+                    <span class="legend-title">
+                        10-Minute Catchment
+                    </span>
+
+                    <span id="count-10min" class="legend-counter">
+                        0 amenities
+                    </span>
+
                 </div>
+
             </div>
+
             <div class="legend-item">
-                <div class="legend-color" style="background: #EF4444;"></div>
+
+                <div class="legend-color" style="background:#EF4444;"></div>
+
                 <div class="legend-text-stack">
-                    <span class="legend-title">20 Minutes (Target Boundary)</span>
-                    <span id="count-20min" class="legend-counter">0 amenities inside buffer</span>
+
+                    <span class="legend-title">
+                        20-Minute Catchment
+                    </span>
+
+                    <span id="count-20min" class="legend-counter">
+                        0 amenities
+                    </span>
+
                 </div>
+
             </div>
+
         </section>
 
-        <!-- Category Distribution Progress Panel -->
+        <!-- Amenity Breakdown -->
+
         <section id="category-panel" class="hidden">
-            <label class="panel-section-title">Infrastructure Breakdown</label>
+
+            <label class="panel-section-title">
+                Amenity Breakdown
+            </label>
+
             <div id="categories-list">
-                <!-- Programmatic category bar elements will append straight here -->
+                <!-- Generated dynamically -->
             </div>
+
         </section>
 
         <footer>
-            <p class="datasource">Powered by Mapbox Isochrone Engine & OpenStreetMap infrastructure network tracks.</p>
-        </footer>
-    </div>
-    
-    <script src="index.js"></script>
-</body>
 
+            <p class="datasource">
+                Powered by
+                <strong>Mapbox GL JS</strong>,
+                <strong>Mapbox Isochrone API</strong>,
+                <strong>Overpass API</strong>,
+                <strong>Turf.js</strong> and
+                <strong>OpenStreetMap</strong>.
+            </p>
+
+        </footer>
+
+    </div>
+
+    <script src="index.js"></script>
+
+</body>
 </html>
