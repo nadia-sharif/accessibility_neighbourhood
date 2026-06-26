@@ -164,6 +164,13 @@ map.on('load', () => {
 // Add zoom and rotation controls to the top right corner
 map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
+
+
+
+
+
+
+
 map.on('click', (e) => {
     const turfEngine = window.turf;
 
